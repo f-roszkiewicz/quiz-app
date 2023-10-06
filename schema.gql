@@ -1,0 +1,29 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+"""question"""
+type Question {
+  question: String!
+  type: QuestionType!
+  answers: String
+}
+
+enum QuestionType {
+  SINGLE_CORRECT
+  MULTIPLE_CORRECT
+  SORTING
+  PLAIN_TEXT
+}
+
+"""quiz"""
+type Quiz {
+  id: Int!
+  name: String!
+  questions: [Question!]!
+}
+
+type Query {
+  quizzes: [Quiz!]!
+  quiz(id: Int!): Quiz!
+}
