@@ -9,7 +9,7 @@ export class QuestionEntity {
 
     @ManyToOne(type => QuizEntity, quiz => quiz.questions)
     quiz: QuizEntity;
-
+    
     @Column()
     question: string;
 
