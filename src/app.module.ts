@@ -3,7 +3,10 @@ import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AnswersModule } from './answers/answers.module';
+import { PossibleAnswer } from './questions/possibleanswer.entity';
+import { QuestionEntity } from './questions/question.entity';
 import { QuestionsModule } from './questions/questions.module';
+import { QuizEntity } from './quizzes/quiz.entity';
 import { QuizzesModule } from './quizzes/quizzes.module';
 
 @Module({
@@ -16,12 +19,14 @@ import { QuizzesModule } from './quizzes/quizzes.module';
       autoSchemaFile: 'schema.gql',
     }),
     TypeOrmModule.forRoot({
-      type: 'mysql',
+      type: 'postgres',
       host: 'localhost',
-      port: 3306,
-      username: 'root',
-      password: 'root',
+      port: 5432,
+      username: 'postgres',
+      password: 'postgres',
+      entities: [QuizEntity, QuestionEntity, PossibleAnswer],
       autoLoadEntities: true,
+      synchronize: true,
     }),
   ],
 })

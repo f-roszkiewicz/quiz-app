@@ -24,7 +24,12 @@ export class QuizzesService {
         const retQuiz = new Quiz();
         retQuiz.id = quiz.id;
         retQuiz.name = quiz.name;
-        retQuiz.questions = await this.questionsService.transformQuestions(quiz.questions);
+        const questions = await this.questionsService.findEntities({
+            where: {
+                quiz: quiz,
+            },
+        });
+        retQuiz.questions = await this.questionsService.transformQuestions(questions);
         return retQuiz;
     }
 
@@ -43,9 +48,16 @@ export class QuizzesService {
         return this.transformQuiz(quiz);
     }
 
+    async findOneEntity(id: number) {
+        return this.quizRepository.findOneById(id);
+    }
+
     async addQuiz(args: GetQuizArgs) {
         if (args.questions.length != args.answers.length) {
-            throw "Number of questions does not equal to number of answers";
+            throw new Error("Number of questions does not equal to number of answers");
+        }
+        if (args.questions.length >= 26) {
+            throw new Error("Too much possible answers");
         }
 
         const quiz = new QuizEntity();
@@ -53,28 +65,36 @@ export class QuizzesService {
 
         const addedQuiz = await this.quizRepository.save(quiz);
 
-        const questionType = {
-            SINGLE_CORRECT: 'Single correct',
-            MULTIPLE_CORRECT: 'Multiple correct',
-            SORTING: 'Sorting',
-            PLAIN_TEXT: 'Plain text',
-        };
         for (let i = 0; i < args.questions.length; i++) {
             const question = new QuestionEntity();
             question.quiz = addedQuiz;
             question.question = args.questions[i].question;
-            question.type = questionType[args.questions[i].type];
+            if (args.questions[i].type == 0) {
+                question.type = 'Single correct';
+            } else if (args.questions[i].type == 1) {
+                question.type = 'Multiple correct';
+            } else if (args.questions[i].type == 2) {
+                question.type = 'Sorting';
+            } else if (args.questions[i].type == 3) {
+                question.type = 'Plain text';
+                if (args.questions[i].answers.length > 0) {
+                    throw new Error("Plain text question can't have possible answers");
+                }
+            }
             question.answer = args.answers[i];
             
             const addedQuestion = await this.questionRepository.save(question);
 
-            args.questions[i].answers.forEach((a) => {
+            for (let j = 0; j < args.questions[i].answers.length; j++) {
                 const answer = new PossibleAnswer();
-                answer.answer = a;
+                answer.answer = '';
+                answer.answer += String.fromCharCode(97 + j);
+                answer.answer += ') ';
+                answer.answer += args.questions[i].answers[j];
                 answer.question = addedQuestion;
 
                 this.answerRepository.save(answer);
-            });
+            }
         }
 
         return this.transformQuiz(addedQuiz);

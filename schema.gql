@@ -2,12 +2,6 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-"""answer"""
-type Answer {
-  yourAnswer: String
-  correctAnswer: String!
-}
-
 """question"""
 type Question {
   question: String!
@@ -27,6 +21,12 @@ type Quiz {
   id: Int!
   name: String!
   questions: [Question!]!
+}
+
+"""answer"""
+type Answer {
+  yourAnswer: String
+  correctAnswer: String!
 }
 
 input question {
