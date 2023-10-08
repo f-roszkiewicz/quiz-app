@@ -1,4 +1,4 @@
-import { Field, ObjectType, registerEnumType } from '@nestjs/graphql';
+import { Field, InputType, ObjectType, registerEnumType } from '@nestjs/graphql';
 
 export enum QuestionType {
     SINGLE_CORRECT,
@@ -12,6 +12,7 @@ registerEnumType(QuestionType, {
 });
 
 @ObjectType({ description: 'question' })
+@InputType('question')
 export class Question {
     @Field()
     question: string;
@@ -19,6 +20,6 @@ export class Question {
     @Field(type => QuestionType)
     type: QuestionType;
 
-    @Field({ nullable: true })
-    answers?: string;
+    @Field(type => [String], { nullable: true })
+    answers?: string[];
 }

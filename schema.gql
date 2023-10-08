@@ -2,11 +2,17 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+"""answer"""
+type Answer {
+  yourAnswer: String
+  correctAnswer: String!
+}
+
 """question"""
 type Question {
   question: String!
   type: QuestionType!
-  answers: String
+  answers: [String!]
 }
 
 enum QuestionType {
@@ -23,7 +29,18 @@ type Quiz {
   questions: [Question!]!
 }
 
+input question {
+  question: String!
+  type: QuestionType!
+  answers: [String!]
+}
+
 type Query {
-  quizzes: [Quiz!]!
-  quiz(id: Int!): Quiz!
+  getQuizzes: [Quiz!]!
+  getQuiz(id: Int!): Quiz!
+  answer(quizId: Int!, answers: [String]!): [Answer!]!
+}
+
+type Mutation {
+  createQuiz(name: String!, questions: [question!]!, answers: [String!]!): Quiz!
 }
