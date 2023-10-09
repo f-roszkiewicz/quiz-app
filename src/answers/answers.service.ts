@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { QuestionsService } from 'src/questions/questions.service';
-import { QuizzesService } from 'src/quizzes/quizzes.service';
+import { QuestionsService } from '../questions/questions.service';
+import { QuizzesService } from '../quizzes/quizzes.service';
 import { GetAnswerArgs } from './dto/get-answer.args';
 import { Answer } from './models/answer.model';
 
@@ -19,7 +19,8 @@ export class AnswersService {
             },
         });
         if (questions.length != args.answers.length) {
-            throw new Error('Incorrect number of answers');
+            throw new Error('Incorrect number of answers, expected: ' + questions.length +
+                            ', actual: ' + args.answers.length);
         }
 
         const answers = [] as Answer[];
