@@ -1,4 +1,4 @@
-import { QuizEntity } from 'src/quizzes/quiz.entity';
+import { QuizEntity } from '../quizzes/quiz.entity';
 import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { PossibleAnswer } from './possibleanswer.entity';
 

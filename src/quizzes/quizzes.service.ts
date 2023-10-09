@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { PossibleAnswer } from 'src/questions/possibleanswer.entity';
-import { QuestionEntity } from 'src/questions/question.entity';
-import { QuestionsService } from 'src/questions/questions.service';
+import { PossibleAnswer } from '../questions/possibleanswer.entity';
+import { QuestionEntity } from '../questions/question.entity';
+import { QuestionsService } from '../questions/questions.service';
 import { Repository } from 'typeorm';
 import { GetQuizArgs } from './dto/get-quiz.args';
 import { Quiz } from './models/quiz.model';
@@ -54,10 +54,14 @@ export class QuizzesService {
 
     async addQuiz(args: GetQuizArgs) {
         if (args.questions.length != args.answers.length) {
-            throw new Error("Number of questions does not equal to number of answers");
+            throw new Error('Number of questions: ' + args.questions.length +
+                            ' does not equal to number of answers: ' + args.answers.length);
         }
-        if (args.questions.length >= 26) {
-            throw new Error("Too much possible answers");
+        if (args.questions.length > 26) {
+            throw new Error('Too much possible answers');
+        }
+        if (args.questions.length === 0) {
+            throw new Error('Quiz should have at least one question');
         }
 
         const quiz = new QuizEntity();
@@ -78,7 +82,7 @@ export class QuizzesService {
             } else if (args.questions[i].type == 3) {
                 question.type = 'Plain text';
                 if (args.questions[i].answers.length > 0) {
-                    throw new Error("Plain text question can't have possible answers");
+                    throw new Error('Plain text question shouldn\'t have possible answers');
                 }
             }
             question.answer = args.answers[i];

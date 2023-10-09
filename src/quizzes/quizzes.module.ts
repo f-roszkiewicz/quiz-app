@@ -8,6 +8,6 @@ import { QuizzesService } from './quizzes.service';
 @Module({
     imports: [QuestionsModule, TypeOrmModule.forFeature([QuizEntity])],
     providers: [QuizzesService, QuizzesResolver],
-    exports: [QuizzesService],
+    exports: [QuizzesService, TypeOrmModule],
 })
 export class QuizzesModule {}

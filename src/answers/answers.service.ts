@@ -19,7 +19,7 @@ export class AnswersService {
             },
         });
         if (questions.length != args.answers.length) {
-            throw new Error("Incorrect number of answers");
+            throw new Error('Incorrect number of answers');
         }
 
         const answers = [] as Answer[];
