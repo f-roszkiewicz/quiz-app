@@ -45,7 +45,7 @@ export class QuestionsService {
         return retQuestions;
     }
 
-    async findEntities(options: FindManyOptions<QuestionEntity>) {
+    async findEntities(options?: FindManyOptions<QuestionEntity>) {
         return this.questionRepository.find(options);
     }
 
