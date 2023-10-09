@@ -28,7 +28,7 @@ Quiz app working on graphQL API. GraphQL types are listed in file schema.gql.
 Functionalities:
 1. Listing all available quizzes, for example:
 
-query {
+```query {
   getQuizzes {
     id
     name
@@ -39,10 +39,11 @@ query {
     }
   }
 }
+```
 
 2. Getting specific quiz by id, for example:
 
-query {
+```query {
   getQuiz(id: 1) {
     id
     name
@@ -53,19 +54,21 @@ query {
     }
   }
 }
+```
 
 3. Solving specific quiz and fetching answers, for example:
 
-query {
+```query {
   answer(quizId: 1, answers: ["d", "ac", "0"]) {
     yourAnswer
     correctAnswer
   }
 }
+```
 
 4. Creating custom quizzes, for example:
 
-mutation {
+```mutation {
   createQuiz(
     name: "Simple maths quiz",
     questions: [
@@ -96,6 +99,7 @@ mutation {
     }
   }
 }
+```
 
 Question's possible answers are automatically listed as a,b,c,... and answers should be matched to these letters.
 If question is single correct type, the answer should be one letter.
