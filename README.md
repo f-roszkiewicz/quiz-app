@@ -102,9 +102,13 @@ Functionalities:
 ```
 
 Question's possible answers are automatically listed as a,b,c,... and answers should be matched to these letters.
+
 If question is single correct type, the answer should be one letter.
+
 If question is multiple correct type, the answer should be multiple letters ordered lexicographically.
+
 If question is sorting type, the answer should be one multiple letters sorted.
+
 If question is plain text type, the possible answers should be empty.
 
 ## Installation
