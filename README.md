@@ -24,7 +24,84 @@
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+Quiz app working on graphQL API. GraphQL types are listed in file schema.gql.
+Functionalities:
+1. Listing all available quizzes, for example:
+
+query {
+  getQuizzes {
+    id
+    name
+    questions {
+      question
+      type
+      answers
+    }
+  }
+}
+
+2. Getting specific quiz by id, for example:
+
+query {
+  getQuiz(id: 1) {
+    id
+    name
+    questions {
+      question
+      type
+      answers
+    }
+  }
+}
+
+3. Solving specific quiz and fetching answers, for example:
+
+query {
+  answer(quizId: 1, answers: ["d", "ac", "0"]) {
+    yourAnswer
+    correctAnswer
+  }
+}
+
+4. Creating custom quizzes, for example:
+
+mutation {
+  createQuiz(
+    name: "Simple maths quiz",
+    questions: [
+      {
+        question: "What is 9 + 10?",
+        type: SINGLE_CORRECT,
+        answers: ["18", "19", "20", "21"]
+      },
+      {
+        question: "What equals to 4?",
+        type: MULTIPLE_CORRECT,
+        answers: ["2+2", "2-2", "2*2", "2/2"]
+      },
+      {
+        question: "What is 2/0?",
+        type: PLAIN_TEXT,
+        answers: []
+      }
+    ],
+    answers: ["b", "ac", "0"]
+  ) {
+    id
+    name
+    questions {
+      question
+      type
+      answers
+    }
+  }
+}
+
+Question's possible answers are automatically listed as a,b,c,... and answers should be matched to these letters.
+If question is single correct type, the answer should be one letter.
+If question is multiple correct type, the answer should be multiple letters ordered lexicographically.
+If question is sorting type, the answer should be one multiple letters sorted.
+If question is plain text type, the possible answers should be empty.
 
 ## Installation
 
