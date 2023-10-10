@@ -24,7 +24,7 @@
 
 ## Description
 
-Quiz app working on graphQL API. GraphQL types are listed in file schema.gql.
+Quiz app working on graphQL API. After running open: http://localhost:3000/graphql. GraphQL types are listed in file schema.gql.
 
 Functionalities:
 1. Listing all available quizzes, for example:
