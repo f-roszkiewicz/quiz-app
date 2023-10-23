@@ -24,7 +24,7 @@ export class QuizzesResolver {
 
     @Mutation(returns => Quiz, { name: 'createQuiz' })
     async createQuiz(@Args() args: GetQuizArgs) {
-        return this.quizzesService.addQuiz(args);
+        return this.quizzesService.addQuiz(args.name, args.questions, args.answers);
     }
 
     @ResolveField('questions', returns => [Question])

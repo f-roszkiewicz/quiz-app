@@ -7,6 +7,7 @@ import { Repository } from 'typeorm';
 import { GetQuizArgs } from './dto/get-quiz.args';
 import { Quiz } from './models/quiz.model';
 import { QuizEntity } from './quiz.entity';
+import { Question } from 'src/questions/models/question.model';
 
 @Injectable()
 export class QuizzesService {
@@ -52,49 +53,49 @@ export class QuizzesService {
         return this.quizRepository.findOneById(id);
     }
 
-    async addQuiz(args: GetQuizArgs) {
-        if (args.questions.length != args.answers.length) {
-            throw new Error('Number of questions: ' + args.questions.length +
-                            ' does not equal to number of answers: ' + args.answers.length);
+    async addQuiz(name: string, questions: Question[], answers: string[]) {
+        if (questions.length != answers.length) {
+            throw new Error('Number of questions: ' + questions.length +
+                            ' does not equal to number of answers: ' + answers.length);
         }
-        if (args.questions.length > 26) {
+        if (questions.length > 26) {
             throw new Error('Too much possible answers');
         }
-        if (args.questions.length === 0) {
+        if (questions.length === 0) {
             throw new Error('Quiz should have at least one question');
         }
 
         const quiz = new QuizEntity();
-        quiz.name = args.name;
+        quiz.name = name;
 
         const addedQuiz = await this.quizRepository.save(quiz);
 
-        for (let i = 0; i < args.questions.length; i++) {
+        for (let i = 0; i < questions.length; i++) {
             const question = new QuestionEntity();
             question.quiz = addedQuiz;
-            question.question = args.questions[i].question;
-            if (args.questions[i].type == 0) {
+            question.question = questions[i].question;
+            if (questions[i].type == 0) {
                 question.type = 'Single correct';
-            } else if (args.questions[i].type == 1) {
+            } else if (questions[i].type == 1) {
                 question.type = 'Multiple correct';
-            } else if (args.questions[i].type == 2) {
+            } else if (questions[i].type == 2) {
                 question.type = 'Sorting';
-            } else if (args.questions[i].type == 3) {
+            } else if (questions[i].type == 3) {
                 question.type = 'Plain text';
-                if (args.questions[i].answers.length > 0) {
+                if (questions[i].answers.length > 0) {
                     throw new Error('Plain text question shouldn\'t have possible answers');
                 }
             }
-            question.answer = args.answers[i];
+            question.answer = answers[i];
             
             const addedQuestion = await this.questionRepository.save(question);
 
-            for (let j = 0; j < args.questions[i].answers.length; j++) {
+            for (let j = 0; j < questions[i].answers.length; j++) {
                 const answer = new PossibleAnswer();
                 answer.answer = '';
                 answer.answer += String.fromCharCode(97 + j);
                 answer.answer += ') ';
-                answer.answer += args.questions[i].answers[j];
+                answer.answer += questions[i].answers[j];
                 answer.question = addedQuestion;
 
                 this.answerRepository.save(answer);

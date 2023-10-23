@@ -146,15 +146,15 @@ describe('QuizzesService', () => {
             const quizSpy = jest.spyOn(quizRepository, 'save');
             const questionSpy = jest.spyOn(questionRepository, 'save');
             const answerSpy = jest.spyOn(answerRepository, 'save');
-            const quiz = await service.addQuiz({
-                name: 'Quiz1',
-                questions: [{
+            const quiz = await service.addQuiz(
+                'Quiz1',
+                [{
                     question: 'Question1',
                     type: 0,
                     answers: ['Answer1'],
                 }],
-                answers: ['a'],
-            });
+                ['a'],
+            );
 
             expect(quizSpy).toBeCalledWith({ name: 'Quiz1' });
             expect(questionSpy).toBeCalledWith(oneQuestion);
