@@ -4,7 +4,6 @@ import { PossibleAnswer } from '../questions/possibleanswer.entity';
 import { QuestionEntity } from '../questions/question.entity';
 import { QuestionsService } from '../questions/questions.service';
 import { Repository } from 'typeorm';
-import { GetQuizArgs } from './dto/get-quiz.args';
 import { Quiz } from './models/quiz.model';
 import { QuizEntity } from './quiz.entity';
 import { Question } from 'src/questions/models/question.model';
@@ -70,21 +69,20 @@ export class QuizzesService {
 
         const addedQuiz = await this.quizRepository.save(quiz);
 
+        const questionTypes = [
+            'Single correct',
+            'Multiple correct',
+            'Sorting',
+            'Plain text',
+        ];
+
         for (let i = 0; i < questions.length; i++) {
             const question = new QuestionEntity();
             question.quiz = addedQuiz;
             question.question = questions[i].question;
-            if (questions[i].type == 0) {
-                question.type = 'Single correct';
-            } else if (questions[i].type == 1) {
-                question.type = 'Multiple correct';
-            } else if (questions[i].type == 2) {
-                question.type = 'Sorting';
-            } else if (questions[i].type == 3) {
-                question.type = 'Plain text';
-                if (questions[i].answers.length > 0) {
-                    throw new Error('Plain text question shouldn\'t have possible answers');
-                }
+            question.type = questionTypes[questions[i].type];
+            if (question.type === 'Plain text' && questions[i].answers.length > 0) {
+                throw new Error('Plain text question shouldn\'t have possible answers');
             }
             question.answer = answers[i];
             
