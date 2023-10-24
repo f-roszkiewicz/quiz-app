@@ -62,7 +62,7 @@ Functionalities:
 3. Solving specific quiz and fetching answers, for example:
 
 ```query {
-  answer(quizId: 1, answers: ["d", "ac", "0"]) {
+  answer(quizId: 1, answers: ["4", "5,7", "0"]) {
     yourAnswer
     correctAnswer
     correct
@@ -87,12 +87,12 @@ Functionalities:
         answerOptions: ["2+2", "2-2", "2*2", "2/2"]
       },
       {
-        question: "What is 2/0?",
+        question: "What is 0/2?",
         type: PLAIN_TEXT,
         answerOptions: []
       }
     ],
-    answers: ["2", "1,3", "0"]
+    answers: ["4", "1,3", "0"]
   ) {
     id
     name
@@ -106,15 +106,11 @@ Functionalities:
 }
 ```
 
-Question's possible answers are automatically listed as a,b,c,... and answers should be matched to these letters.
+Question's possible answers should be numbers refering to answers, divided by commas.
 
-If question is single correct type, the answer should be one letter.
+If question is plain text type, the answer options should be empty.
 
-If question is multiple correct type, the answer should be multiple letters ordered lexicographically.
-
-If question is sorting type, the answer should be one multiple letters sorted.
-
-If question is plain text type, the possible answers should be empty.
+When answering a question, an answer is multiple answer option ids, divided by commas.
 
 ## Installation
 

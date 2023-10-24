@@ -30,7 +30,12 @@ export class AnswersService {
                     },
                 },
             },
+            relations: {
+                question: true,
+            },
         });
+
+        console.log(questionOptions[0]);
 
         const retAnswers = [] as Answer[];
         for (let i = 0; i < questions.length; i++) {

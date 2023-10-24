@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
 import { QuestionOption } from '../questions/questionoption.entity';
 import { QuestionEntity } from '../questions/question.entity';
 import { QuestionsService } from '../questions/questions.service';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { Quiz } from './models/quiz.model';
 import { QuizEntity } from './quiz.entity';
 import { Question } from 'src/questions/models/question.model';
@@ -13,10 +13,7 @@ export class QuizzesService {
     constructor(
         @InjectRepository(QuizEntity)
         private quizRepository: Repository<QuizEntity>,
-        @InjectRepository(QuestionEntity)
-        private questionRepository: Repository<QuestionEntity>,
-        @InjectRepository(QuestionOption)
-        private optionRepository: Repository<QuestionOption>,
+        private dataSource: DataSource,
         private questionsService: QuestionsService,
     ) {}
 
@@ -60,11 +57,37 @@ export class QuizzesService {
         if (questions.length === 0) {
             throw new Error('Quiz should have at least one question');
         }
+        for (let i = 0; i < questions.length; i++) {
+            if (questions[i].type === 3) {
+                if (questions[i].answerOptions.length > 0) {
+                    throw new Error('Plain text question shouldn\'t have possible answers');
+                }
+            } else {
+                for (let j = 0; j < answers[i].length; j++) {
+                    if ((answers[i].charCodeAt(j) < '0'.charCodeAt(0) ||
+                        answers[i].charCodeAt(j) > '9'.charCodeAt(0)) &&
+                        answers[i].charCodeAt(j) !== ','.charCodeAt(0)) {
+                        throw new Error('Answer should be a list of numbers');
+                    }
+                }
+            }
+            const tmpAnswers = answers[i].split(',');
+            if (questions[i].type === 0 && tmpAnswers.length !== 1) {
+                throw new Error('More than one answer in single answer question');
+            }
+            if (questions[i].type !== 3 && tmpAnswers.length > questions[i].answerOptions.length) {
+                throw new Error('Too much answers compared to question options');
+            }
+        }
+
+        const querryRunner = this.dataSource.createQueryRunner();
+        await querryRunner.connect();
+        await querryRunner.startTransaction();
 
         const quiz = new QuizEntity();
         quiz.name = name;
 
-        const addedQuiz = await this.quizRepository.save(quiz);
+        const addedQuiz = await querryRunner.manager.save(quiz);
 
         const questionTypes = [
             'Single correct',
@@ -79,49 +102,29 @@ export class QuizzesService {
             question.type = questionTypes[questions[i].type];
             if (question.type === 'Plain text') {
                 question.plainTextAnswer = answers[i];
-                if (questions[i].answerOptions.length > 0) {
-                    throw new Error('Plain text question shouldn\'t have possible answers');
-                }
-            } else {
-                for (let j = 0; j < answers[i].length; j++) {
-                    if ((answers[i].charCodeAt(j) < '0'.charCodeAt(0) ||
-                        answers[i].charCodeAt(j) > '9'.charCodeAt(0)) &&
-                        answers[i].charCodeAt(j) !== ','.charCodeAt(0)) {
-                        throw new Error('Answer should be a list of numbers');
-                    }
-                }
             }
-            
-            const addedQuestion = await this.questionRepository.save(question);
+
+            const addedQuestion = await querryRunner.manager.save(question);
 
             const correctAnswers = answers[i].split(',').map(i => Number(i));
-            if (question.type === 'Single correct' && correctAnswers.length !== 1) {
-                throw new Error('More than one answer in single answer question');
-            }
-            if (question.type !== 'Plain text' && correctAnswers.length > questions[i].answerOptions.length) {
-                throw new Error('Too much answers compared to question options');
-            }
             for (let j = 0; j < questions[i].answerOptions.length; j++) {
                 const qOption = new QuestionOption();
                 qOption.option = questions[i].answerOptions[j];
                 qOption.question = addedQuestion;
 
                 if (question.type === 'Sorting') {
-                    if (correctAnswers.length !== questions[i].answerOptions.length) {
-                        throw new Error('Sorting answers is not equal to question options');
-                    }
                     const position = correctAnswers.indexOf(j + 1);
-                    if (position === -1) {
-                        throw new Error('Option number: ' + (j + 1) + ' hasn\'t got specified position in sorting answer');
-                    }
                     qOption.correct = position;
                 } else if (correctAnswers.includes(j + 1)) {
                     qOption.correct = 1;
                 }
 
-                this.optionRepository.save(qOption);
+                querryRunner.manager.save(qOption);
             }
         }
+
+        await querryRunner.commitTransaction();
+        await querryRunner.release();
 
         return this.transformQuiz(addedQuiz);
     }
