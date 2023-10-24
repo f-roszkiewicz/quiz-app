@@ -61,20 +61,15 @@ describe('QuestionsService', () => {
         expect(service).toBeDefined();
     });
 
-    describe('transformQuestions()', () => {
-        it('should return question model array', () => {
-            expect(service.transformQuestions(questionArray)).resolves.toEqual([{
-                question: 'Question1',
-                type: QuestionType.SINGLE_CORRECT,
-                answerIds: [1],
-                answerOptions: ['Answer1'],
-            }]);
-        });
-    });
-
     describe('findEntities()', () => {
         it('should get question entities', () => {
             expect(service.findEntities()).resolves.toEqual(questionArray);
+        });
+    });
+
+    describe('findOptionEntities()', () => {
+        it('should get question entities', () => {
+            expect(service.findOptionEntities()).resolves.toEqual(optionArray);
         });
     });
 

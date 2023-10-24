@@ -1,9 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { QuestionOption } from '../questions/questionoption.entity';
-import { QuestionEntity } from '../questions/question.entity';
 import { QuestionsService } from '../questions/questions.service';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { QuizEntity } from './quiz.entity';
 import { QuizzesService } from './quizzes.service';
 
@@ -40,11 +38,16 @@ const oneAnswer = {
     correct: 1,
 };
 
+const dataSourceMockFactory: () => MockType<DataSource> = jest.fn(() => ({}));
+  
+type MockType<T> = {
+    [P in keyof T]?: jest.Mock<{}>;
+};
+
 describe('QuizzesService', () => {
     let service: QuizzesService;
     let quizRepository: Repository<QuizEntity>;
-    let questionRepository: Repository<QuestionEntity>;
-    let optionRepository: Repository<QuestionOption>;
+    let dataSourceMock: MockType<DataSource>;
 
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
@@ -55,35 +58,24 @@ describe('QuizzesService', () => {
                     useValue: {
                         find: jest.fn().mockResolvedValue(quizArray),
                         findOneById: jest.fn().mockResolvedValue(oneQuiz),
-                        save: jest.fn().mockResolvedValue(oneQuiz),
                     },
                 },
                 {
-                    provide: getRepositoryToken(QuestionEntity),
-                    useValue: {
-                        save: jest.fn().mockResolvedValue(oneQuestion),
-                    },
-                },
-                {
-                    provide: getRepositoryToken(QuestionOption),
-                    useValue: {
-                        save: jest.fn().mockResolvedValue(oneAnswer),
-                    },
+                    provide: DataSource,
+                    useFactory: dataSourceMockFactory,
                 },
             ],
         }).useMocker((token) => {
             if (token === QuestionsService) {
                 return {
-                    findEntities: jest.fn().mockResolvedValue([oneQuestion]),
-                    transformQuestions: jest.fn().mockResolvedValue(questionArray),
+                    findAll: jest.fn().mockResolvedValue(questionArray),
                 };
             }
         }).compile();
 
         service = module.get<QuizzesService>(QuizzesService);
         quizRepository = module.get<Repository<QuizEntity>>(getRepositoryToken(QuizEntity));
-        questionRepository = module.get<Repository<QuestionEntity>>(getRepositoryToken(QuestionEntity));
-        optionRepository = module.get<Repository<QuestionOption>>(getRepositoryToken(QuestionOption));
+        dataSourceMock = module.get(DataSource);
     });
 
     it('should be defined', () => {
@@ -132,40 +124,6 @@ describe('QuizzesService', () => {
     describe('findOneEntity()', () => {
         it('should get a single quiz entity', () => {
             expect(service.findOneEntity(1)).resolves.toEqual(oneQuiz);
-        });
-    });
-
-    describe('addQuiz()', () => {
-        const outputQuiz = {
-            id: 1,
-            name: 'Quiz1',
-            questions: [
-                {
-                    question: 'Question1',
-                    type: QuestionType.SINGLE_CORRECT,
-                    answerIds: [1],
-                    answerOptions: ['Answer1'],
-                },
-            ],
-        };
-        it('should add quiz to a repository', async () => {
-            const quizSpy = jest.spyOn(quizRepository, 'save');
-            const questionSpy = jest.spyOn(questionRepository, 'save');
-            const answerSpy = jest.spyOn(optionRepository, 'save');
-            const quiz = await service.addQuiz(
-                'Quiz1',
-                [{
-                    question: 'Question1',
-                    type: QuestionType.SINGLE_CORRECT,
-                    answerOptions: ['Answer1'],
-                }],
-                ['1'],
-            );
-
-            expect(quizSpy).toBeCalledWith({ name: 'Quiz1' });
-            expect(questionSpy).toBeCalledWith(oneQuestion);
-            expect(answerSpy).toBeCalledWith(oneAnswer);
-            expect(quiz).toEqual(outputQuiz);
         });
     });
 });

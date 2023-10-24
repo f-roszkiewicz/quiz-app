@@ -14,7 +14,7 @@ export class QuestionsService {
         private optionRepository: Repository<QuestionOption>,
     ) {}
 
-    async transformQuestions(questions: QuestionEntity[]) {
+    private async transformQuestions(questions: QuestionEntity[]) {
         const retQuestions = [] as Question[];
         
         const questionType = {
@@ -23,22 +23,30 @@ export class QuestionsService {
             'Sorting': QuestionType.SORTING,
             'Plain text': QuestionType.PLAIN_TEXT,
         };
+        const quizAnswers = await this.optionRepository.find({
+            where: {
+                question: {
+                    quiz: {
+                        id: questions[0].quiz.id,
+                    }
+                },
+            },
+            relations: {
+                question: true,
+            },
+        });
         for (let i = 0; i < questions.length; i++) {
             const question = new Question();
             question.question = questions[i].question;
             question.type = questionType[questions[i].type];
 
-            const answers = await this.optionRepository.find({
-                where: {
-                    question: questions[i],
-                },
-            });
-
             question.answerIds = [];
             question.answerOptions = [];
-            answers.forEach((a) => {
-                question.answerIds.push(a.id);
-                question.answerOptions.push(a.option);
+            quizAnswers.forEach((ans) => {
+                if (ans.question.id === questions[i].id) {
+                    question.answerIds.push(ans.id);
+                    question.answerOptions.push(ans.option);
+                }
             });
 
             retQuestions.push(question);
@@ -51,6 +59,10 @@ export class QuestionsService {
         return this.questionRepository.find(options);
     }
 
+    async findOptionEntities(options?: FindManyOptions<QuestionOption>) {
+        return this.optionRepository.find(options);
+    }
+
     async findAll(id: number) {
         const questions = await this.questionRepository.find({
             where: {
@@ -58,11 +70,10 @@ export class QuestionsService {
                     id: id,
                 },
             },
+            relations: {
+                quiz: true,
+            },
         });
         return this.transformQuestions(questions);
-    }
-
-    async findOptionEntities(options?: FindManyOptions<QuestionOption>) {
-        return this.optionRepository.find(options);
     }
 }
