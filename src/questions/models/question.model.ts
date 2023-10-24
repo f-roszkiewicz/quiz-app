@@ -1,4 +1,4 @@
-import { Field, InputType, ObjectType, registerEnumType } from '@nestjs/graphql';
+import { Field, InputType, Int, ObjectType, registerEnumType } from '@nestjs/graphql';
 
 export enum QuestionType {
     SINGLE_CORRECT,
@@ -20,6 +20,9 @@ export class Question {
     @Field(type => QuestionType)
     type: QuestionType;
 
+    @Field(type => [Int], { nullable: true })
+    answerIds?: number[];
+
     @Field(type => [String], { nullable: true })
-    answers?: string[];
+    answerOptions?: string[];
 }

@@ -3,7 +3,7 @@ import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AnswersModule } from './answers/answers.module';
-import { PossibleAnswer } from './questions/possibleanswer.entity';
+import { QuestionOption } from './questions/questionoption.entity';
 import { QuestionEntity } from './questions/question.entity';
 import { QuestionsModule } from './questions/questions.module';
 import { QuizEntity } from './quizzes/quiz.entity';
@@ -24,7 +24,7 @@ import { QuizzesModule } from './quizzes/quizzes.module';
       port: 5432,
       username: 'postgres',
       password: 'postgres',
-      entities: [QuizEntity, QuestionEntity, PossibleAnswer],
+      entities: [QuizEntity, QuestionEntity, QuestionOption],
       autoLoadEntities: true,
       synchronize: true,
     }),

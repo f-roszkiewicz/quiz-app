@@ -1,9 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { PossibleAnswer } from './possibleanswer.entity';
+import { QuestionOption } from './questionoption.entity';
 import { QuestionEntity } from './question.entity';
 import { QuestionsService } from './questions.service';
+import { QuestionType } from './models/question.model';
 
 const oneQuiz = {
     id: 1,
@@ -16,19 +17,21 @@ const questionArray = [{
     quiz: oneQuiz,
     question: 'Question1',
     type: 'Single correct',
-    possibleAnswers: [],
-    answer: 'a',
+    questionOptions: [],
+    plainTextAnswer: '',
 }];
 
-const answerArray = [{
+const optionArray = [{
+    id: 1,
     question: questionArray[0],
-    answer: 'a) Answer1',
+    option: 'Answer1',
+    correct: 1,
 }];
 
 describe('QuestionsService', () => {
     let service: QuestionsService;
     let questionRepository: Repository<QuestionEntity>;
-    let answerRepository: Repository<PossibleAnswer>;
+    let optionRepository: Repository<QuestionOption>;
 
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
@@ -41,9 +44,9 @@ describe('QuestionsService', () => {
                     },
                 },
                 {
-                    provide: getRepositoryToken(PossibleAnswer),
+                    provide: getRepositoryToken(QuestionOption),
                     useValue: {
-                        find: jest.fn().mockResolvedValue(answerArray),
+                        find: jest.fn().mockResolvedValue(optionArray),
                     },
                 },
             ],
@@ -51,7 +54,7 @@ describe('QuestionsService', () => {
 
         service = module.get<QuestionsService>(QuestionsService);
         questionRepository = module.get<Repository<QuestionEntity>>(getRepositoryToken(QuestionEntity));
-        answerRepository = module.get<Repository<PossibleAnswer>>(getRepositoryToken(PossibleAnswer));
+        optionRepository = module.get<Repository<QuestionOption>>(getRepositoryToken(QuestionOption));
     });
 
     it('should be defined', () => {
@@ -62,8 +65,9 @@ describe('QuestionsService', () => {
         it('should return question model array', () => {
             expect(service.transformQuestions(questionArray)).resolves.toEqual([{
                 question: 'Question1',
-                type: 0,
-                answers: ['a) Answer1'],
+                type: QuestionType.SINGLE_CORRECT,
+                answerIds: [1],
+                answerOptions: ['Answer1'],
             }]);
         });
     });
@@ -78,8 +82,9 @@ describe('QuestionsService', () => {
         it('should get question array', () => {
             expect(service.findAll(1)).resolves.toEqual([{
                 question: 'Question1',
-                type: 0,
-                answers: ['a) Answer1'],
+                type: QuestionType.SINGLE_CORRECT,
+                answerIds: [1],
+                answerOptions: ['Answer1'],
             }]);
         });
     });

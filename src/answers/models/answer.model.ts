@@ -7,4 +7,7 @@ export class Answer {
 
     @Field()
     correctAnswer: string;
+
+    @Field(type => Boolean)
+    correct: boolean;
 }

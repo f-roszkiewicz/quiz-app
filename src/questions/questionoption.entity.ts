@@ -2,13 +2,16 @@ import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { QuestionEntity } from './question.entity';
 
 @Entity()
-export class PossibleAnswer {
+export class QuestionOption {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @ManyToOne(type => QuestionEntity, question => question.possibleAnswers)
+    @ManyToOne(type => QuestionEntity, question => question.questionOptions)
     question: QuestionEntity;
 
     @Column()
-    answer: string;
+    option: string;
+
+    @Column({ default: 0 })
+    correct: number;
 }

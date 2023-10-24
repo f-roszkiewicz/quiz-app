@@ -1,6 +1,6 @@
 import { QuizEntity } from '../quizzes/quiz.entity';
 import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
-import { PossibleAnswer } from './possibleanswer.entity';
+import { QuestionOption } from './questionoption.entity';
 
 @Entity()
 export class QuestionEntity {
@@ -16,9 +16,9 @@ export class QuestionEntity {
     @Column()
     type: string;
 
-    @OneToMany(type => PossibleAnswer, possibleAnswer => possibleAnswer.question)
-    possibleAnswers: PossibleAnswer[];
+    @OneToMany(type => QuestionOption, questionOption => questionOption.question)
+    questionOptions: QuestionOption[];
 
-    @Column()
-    answer: string;
+    @Column({ default: '' })
+    plainTextAnswer: string;
 }

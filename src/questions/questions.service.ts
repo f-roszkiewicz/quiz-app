@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindManyOptions, Repository } from 'typeorm';
 import { Question, QuestionType } from './models/question.model';
-import { PossibleAnswer } from './possibleanswer.entity';
+import { QuestionOption } from './questionoption.entity';
 import { QuestionEntity } from './question.entity';
 
 @Injectable()
@@ -10,8 +10,8 @@ export class QuestionsService {
     constructor(
         @InjectRepository(QuestionEntity)
         private questionRepository: Repository<QuestionEntity>,
-        @InjectRepository(PossibleAnswer)
-        private answerRepository: Repository<PossibleAnswer>,
+        @InjectRepository(QuestionOption)
+        private optionRepository: Repository<QuestionOption>,
     ) {}
 
     async transformQuestions(questions: QuestionEntity[]) {
@@ -28,15 +28,17 @@ export class QuestionsService {
             question.question = questions[i].question;
             question.type = questionType[questions[i].type];
 
-            const answers = await this.answerRepository.find({
+            const answers = await this.optionRepository.find({
                 where: {
                     question: questions[i],
                 },
             });
 
-            question.answers = [];
+            question.answerIds = [];
+            question.answerOptions = [];
             answers.forEach((a) => {
-                question.answers.push(a.answer);
+                question.answerIds.push(a.id);
+                question.answerOptions.push(a.option);
             });
 
             retQuestions.push(question);
@@ -50,7 +52,17 @@ export class QuestionsService {
     }
 
     async findAll(id: number) {
-        const questions = await this.questionRepository.find();
+        const questions = await this.questionRepository.find({
+            where: {
+                quiz: {
+                    id: id,
+                },
+            },
+        });
         return this.transformQuestions(questions);
+    }
+
+    async findOptionEntities(options?: FindManyOptions<QuestionOption>) {
+        return this.optionRepository.find(options);
     }
 }

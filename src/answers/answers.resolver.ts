@@ -11,6 +11,6 @@ export class AnswersResolver {
 
     @Query(returns => [Answer], { name: 'answer' })
     async answer(@Args() args: GetAnswerArgs) {
-        return this.answersService.answer(args);
+        return this.answersService.answer(args.quizId, args.answers);
     }
 }

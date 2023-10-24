@@ -1,47 +1,50 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { PossibleAnswer } from '../questions/possibleanswer.entity';
+import { QuestionOption } from '../questions/questionoption.entity';
 import { QuestionEntity } from '../questions/question.entity';
 import { QuestionsService } from '../questions/questions.service';
 import { Repository } from 'typeorm';
 import { QuizEntity } from './quiz.entity';
 import { QuizzesService } from './quizzes.service';
 
-const quizArray = [
-    {
-        id: 1,
-        name: 'Quiz1',
-    },
-];
+enum QuestionType {
+    SINGLE_CORRECT,
+    MULTIPLE_CORRECT,
+    SORTING,
+    PLAIN_TEXT,
+}
+
+const quizArray = [{
+    id: 1,
+    name: 'Quiz1',
+}];
 
 const questionArray = [{
     question: 'Question1',
-    type: 0,
-    answers: ['Answer1'],
+    type: QuestionType.SINGLE_CORRECT,
+    answerIds: [1],
+    answerOptions: ['Answer1'],
 }];
 
-const oneQuiz = {
-    id: 1,
-    name: 'Quiz1',
-};
+const oneQuiz = quizArray[0];
 
 const oneQuestion = {
     quiz: oneQuiz,
     question: 'Question1',
     type: 'Single correct',
-    answer: 'a',
 };
 
 const oneAnswer = {
     question: oneQuestion,
-    answer: 'a) Answer1',
+    option: 'Answer1',
+    correct: 1,
 };
 
 describe('QuizzesService', () => {
     let service: QuizzesService;
     let quizRepository: Repository<QuizEntity>;
     let questionRepository: Repository<QuestionEntity>;
-    let answerRepository: Repository<PossibleAnswer>;
+    let optionRepository: Repository<QuestionOption>;
 
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
@@ -62,7 +65,7 @@ describe('QuizzesService', () => {
                     },
                 },
                 {
-                    provide: getRepositoryToken(PossibleAnswer),
+                    provide: getRepositoryToken(QuestionOption),
                     useValue: {
                         save: jest.fn().mockResolvedValue(oneAnswer),
                     },
@@ -80,7 +83,7 @@ describe('QuizzesService', () => {
         service = module.get<QuizzesService>(QuizzesService);
         quizRepository = module.get<Repository<QuizEntity>>(getRepositoryToken(QuizEntity));
         questionRepository = module.get<Repository<QuestionEntity>>(getRepositoryToken(QuestionEntity));
-        answerRepository = module.get<Repository<PossibleAnswer>>(getRepositoryToken(PossibleAnswer));
+        optionRepository = module.get<Repository<QuestionOption>>(getRepositoryToken(QuestionOption));
     });
 
     it('should be defined', () => {
@@ -88,39 +91,41 @@ describe('QuizzesService', () => {
     });
 
     describe('findAll()', () => {
-        const outPutQuizzes = [
+        const outputQuizzes = [
             {
                 id: 1,
                 name: 'Quiz1',
                 questions: [
                     {
                         question: 'Question1',
-                        type: 0,
-                        answers: ['Answer1'],
+                        type: QuestionType.SINGLE_CORRECT,
+                        answerIds: [1],
+                        answerOptions: ['Answer1'],
                     },
                 ],
             },
         ];
         it('should return an array of quizzes', async () => {
             const quizzes = await service.findAll();
-            expect(quizzes).toEqual(outPutQuizzes);
+            expect(quizzes).toEqual(outputQuizzes);
         });
     });
 
     describe('findOneById()', () => {
-        const outPutQuiz = {
+        const outputQuiz = {
             id: 1,
             name: 'Quiz1',
             questions: [
                 {
                     question: 'Question1',
-                    type: 0,
-                    answers: ['Answer1'],
+                    type: QuestionType.SINGLE_CORRECT,
+                    answerIds: [1],
+                    answerOptions: ['Answer1'],
                 },
             ],
         };
         it('should get a single quiz', () => {
-            expect(service.findOneById(1)).resolves.toEqual(outPutQuiz);
+            expect(service.findOneById(1)).resolves.toEqual(outputQuiz);
         });
     });
 
@@ -131,35 +136,36 @@ describe('QuizzesService', () => {
     });
 
     describe('addQuiz()', () => {
-        const outPutQuiz = {
+        const outputQuiz = {
             id: 1,
             name: 'Quiz1',
             questions: [
                 {
                     question: 'Question1',
-                    type: 0,
-                    answers: ['Answer1'],
+                    type: QuestionType.SINGLE_CORRECT,
+                    answerIds: [1],
+                    answerOptions: ['Answer1'],
                 },
             ],
         };
         it('should add quiz to a repository', async () => {
             const quizSpy = jest.spyOn(quizRepository, 'save');
             const questionSpy = jest.spyOn(questionRepository, 'save');
-            const answerSpy = jest.spyOn(answerRepository, 'save');
+            const answerSpy = jest.spyOn(optionRepository, 'save');
             const quiz = await service.addQuiz(
                 'Quiz1',
                 [{
                     question: 'Question1',
-                    type: 0,
-                    answers: ['Answer1'],
+                    type: QuestionType.SINGLE_CORRECT,
+                    answerOptions: ['Answer1'],
                 }],
-                ['a'],
+                ['1'],
             );
 
             expect(quizSpy).toBeCalledWith({ name: 'Quiz1' });
             expect(questionSpy).toBeCalledWith(oneQuestion);
             expect(answerSpy).toBeCalledWith(oneAnswer);
-            expect(quiz).toEqual(outPutQuiz);
+            expect(quiz).toEqual(outputQuiz);
         });
     });
 });

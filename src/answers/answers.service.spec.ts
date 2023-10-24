@@ -9,10 +9,19 @@ const oneQuiz = {
 };
 
 const questionArray = [{
+    id: 1,
     quiz: oneQuiz,
     question: 'Question1',
     type: 'Single correct',
-    answer: 'a',
+    questionOptions: [],
+    plainTextAnswer: '',
+}];
+
+const optionArray = [{
+    id: 1,
+    question: questionArray[0],
+    option: 'Answer1',
+    correct: 1,
 }];
 
 describe('AnswersService', () => {
@@ -26,6 +35,7 @@ describe('AnswersService', () => {
         }).useMocker((token) => {
             if (token === QuestionsService) {
                 return {
+                    findOptionEntities: jest.fn().mockResolvedValue(optionArray),
                     findEntities: jest.fn().mockResolvedValue(questionArray),
                 };
             }
@@ -45,9 +55,10 @@ describe('AnswersService', () => {
 
     describe('answer()', () => {
         it('should return your answers', () => {
-            expect(service.answer({ quizId: 1, answers: ['a'], })).resolves.toEqual([{
-                yourAnswer: 'a',
-                correctAnswer: 'a',
+            expect(service.answer(1, ['1'])).resolves.toEqual([{
+                yourAnswer: '1',
+                correctAnswer: '1',
+                correct: true,
             }]);
         });
     });

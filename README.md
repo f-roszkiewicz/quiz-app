@@ -36,7 +36,8 @@ Functionalities:
     questions {
       question
       type
-      answers
+      answerIds
+      answerOptions
     }
   }
 }
@@ -51,7 +52,8 @@ Functionalities:
     questions {
       question
       type
-      answers
+      answerIds
+      answerOptions
     }
   }
 }
@@ -63,6 +65,7 @@ Functionalities:
   answer(quizId: 1, answers: ["d", "ac", "0"]) {
     yourAnswer
     correctAnswer
+    correct
   }
 }
 ```
@@ -76,27 +79,28 @@ Functionalities:
       {
         question: "What is 9 + 10?",
         type: SINGLE_CORRECT,
-        answers: ["18", "19", "20", "21"]
+        answerOptions: ["18", "19", "20", "21"]
       },
       {
         question: "What equals to 4?",
         type: MULTIPLE_CORRECT,
-        answers: ["2+2", "2-2", "2*2", "2/2"]
+        answerOptions: ["2+2", "2-2", "2*2", "2/2"]
       },
       {
         question: "What is 2/0?",
         type: PLAIN_TEXT,
-        answers: []
+        answerOptions: []
       }
     ],
-    answers: ["b", "ac", "0"]
+    answers: ["2", "1,3", "0"]
   ) {
     id
     name
     questions {
       question
       type
-      answers
+      answerIds
+      answerOptions
     }
   }
 }

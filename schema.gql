@@ -6,7 +6,8 @@
 type Question {
   question: String!
   type: QuestionType!
-  answers: [String!]
+  answerIds: [Int!]
+  answerOptions: [String!]
 }
 
 enum QuestionType {
@@ -27,12 +28,14 @@ type Quiz {
 type Answer {
   yourAnswer: String
   correctAnswer: String!
+  correct: Boolean!
 }
 
 input question {
   question: String!
   type: QuestionType!
-  answers: [String!]
+  answerIds: [Int!]
+  answerOptions: [String!]
 }
 
 type Query {
